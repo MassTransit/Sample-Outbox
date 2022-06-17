@@ -1,7 +1,9 @@
+namespace Sample.Api;
+
 using MassTransit;
+using MassTransit.RetryPolicies;
 using Microsoft.EntityFrameworkCore;
 
-namespace Sample.Api;
 
 public class RecreateDatabaseHostedService<TDbContext> :
     IHostedService
@@ -10,7 +12,6 @@ public class RecreateDatabaseHostedService<TDbContext> :
     readonly ILogger<RecreateDatabaseHostedService<TDbContext>> _logger;
     readonly IServiceScopeFactory _scopeFactory;
     TDbContext? _context;
-    IServiceScope? _scope;
 
     public RecreateDatabaseHostedService(IServiceScopeFactory scopeFactory, ILogger<RecreateDatabaseHostedService<TDbContext>> logger)
     {
@@ -22,12 +23,27 @@ public class RecreateDatabaseHostedService<TDbContext> :
     {
         _logger.LogInformation("Applying migrations for {DbContext}", TypeCache<TDbContext>.ShortName);
 
-        _scope = _scopeFactory.CreateScope();
+        await Retry.Interval(20, TimeSpan.FromSeconds(3)).Retry(async () =>
+        {
+            var scope = _scopeFactory.CreateScope();
 
-        _context = _scope.ServiceProvider.GetRequiredService<TDbContext>();
+            try
+            {
+                _context = scope.ServiceProvider.GetRequiredService<TDbContext>();
 
-        await _context.Database.EnsureDeletedAsync(cancellationToken);
-        await _context.Database.EnsureCreatedAsync(cancellationToken);
+                await _context.Database.EnsureDeletedAsync(cancellationToken);
+                await _context.Database.EnsureCreatedAsync(cancellationToken);
+
+                _logger.LogInformation("Migrations completed for {DbContext}", TypeCache<TDbContext>.ShortName);
+            }
+            finally
+            {
+                if (scope is IAsyncDisposable asyncDisposable)
+                    await asyncDisposable.DisposeAsync();
+                else
+                    scope.Dispose();
+            }
+        }, cancellationToken);
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

@@ -11,14 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Components", "src\Sa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Worker", "src\Sample.Worker\Sample.Worker.csproj", "{B38EFEA2-3952-475D-83C1-C4B23DE11109}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MassTransit", "..\..\Code\MassTransit\src\MassTransit\MassTransit.csproj", "{506F5A1C-0ABC-4A70-9ADB-EA6C5737D63A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MassTransit.Abstractions", "..\..\Code\MassTransit\src\MassTransit.Abstractions\MassTransit.Abstractions.csproj", "{6AF7BC0F-EBCD-4219-9260-8860BCE1D04F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MassTransit.RabbitMqTransport", "..\..\Code\MassTransit\src\Transports\MassTransit.RabbitMqTransport\MassTransit.RabbitMqTransport.csproj", "{9066C7CE-798B-4ADB-BA85-4B0F4A7B8283}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MassTransit.EntityFrameworkCoreIntegration", "..\..\Code\MassTransit\src\Persistence\MassTransit.EntityFrameworkCoreIntegration\MassTransit.EntityFrameworkCoreIntegration.csproj", "{8B45E865-858E-4613-B43B-ADB11B7AEFF3}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,22 +32,6 @@ Global
 		{B38EFEA2-3952-475D-83C1-C4B23DE11109}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B38EFEA2-3952-475D-83C1-C4B23DE11109}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B38EFEA2-3952-475D-83C1-C4B23DE11109}.Release|Any CPU.Build.0 = Release|Any CPU
-		{506F5A1C-0ABC-4A70-9ADB-EA6C5737D63A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{506F5A1C-0ABC-4A70-9ADB-EA6C5737D63A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{506F5A1C-0ABC-4A70-9ADB-EA6C5737D63A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{506F5A1C-0ABC-4A70-9ADB-EA6C5737D63A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6AF7BC0F-EBCD-4219-9260-8860BCE1D04F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6AF7BC0F-EBCD-4219-9260-8860BCE1D04F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6AF7BC0F-EBCD-4219-9260-8860BCE1D04F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6AF7BC0F-EBCD-4219-9260-8860BCE1D04F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9066C7CE-798B-4ADB-BA85-4B0F4A7B8283}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9066C7CE-798B-4ADB-BA85-4B0F4A7B8283}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9066C7CE-798B-4ADB-BA85-4B0F4A7B8283}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9066C7CE-798B-4ADB-BA85-4B0F4A7B8283}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8B45E865-858E-4613-B43B-ADB11B7AEFF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B45E865-858E-4613-B43B-ADB11B7AEFF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8B45E865-858E-4613-B43B-ADB11B7AEFF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8B45E865-858E-4613-B43B-ADB11B7AEFF3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{50E0BF1C-19B4-43C4-B808-D8834AAACA9C} = {10321627-4A41-434B-B0F7-6EA621E78B58}

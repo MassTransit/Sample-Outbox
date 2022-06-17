@@ -39,6 +39,8 @@ builder.Services.AddDbContext<RegistrationDbContext>(x =>
     });
 });
 
+builder.Services.AddHostedService<RecreateDatabaseHostedService<RegistrationDbContext>>();
+
 builder.Services.AddMassTransit(x =>
 {
     x.AddEntityFrameworkOnRamp<RegistrationDbContext>();
@@ -46,9 +48,7 @@ builder.Services.AddMassTransit(x =>
     x.UsingRabbitMq((_, cfg) => { cfg.AutoStart = true; });
 });
 
-builder.Services.AddHostedService<RecreateDatabaseHostedService<RegistrationDbContext>>();
 builder.Services.AddEntityFrameworkOnRampDeliveryService<RegistrationDbContext>(options => options.SweepInterval = TimeSpan.FromSeconds(1));
-
 builder.Services.AddSingleton<ILockStatementProvider, PostgresLockStatementProvider>();
 
 builder.Services.AddOptions<TextWriterLoggerOptions>().Configure(options => options.Disable("Microsoft"));
@@ -64,8 +64,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

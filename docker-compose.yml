@@ -11,19 +11,21 @@ services:
       - "POSTGRES_PASSWORD=Password12!"
     ports:
       - 5432:5432
-#  api:
-#    image: sample/api
-#    build:
-#      context: ./src
-#      dockerfile: Dockerfile.api
-#    ports:
-#     - "5000:80"
-#     - "5001:81"
-#  service:
-#    image: sample/worker
-#    build:
-#      context: ./src
-#      dockerfile: Dockerfile.worker
-#    ports:
-#     - "5002:80"
-#     - "5003:81"
+  api:
+    image: sample/api
+    environment: 
+     - ASPNETCORE_ENVIRONMENT=Development
+     - ASPNETCORE_URLS=http://+:80
+     - ConnectionStrings__Default=host=postgres;user id=postgres;password=Password12!;database=Outbox;
+    build:
+      context: ./src
+      dockerfile: Dockerfile.api
+    ports:
+     - "5000:80"
+  service:
+    image: sample/worker
+    environment: 
+     - ConnectionStrings__Default=host=postgres;user id=postgres;password=Password12!;database=Outbox;
+    build:
+      context: ./src
+      dockerfile: Dockerfile.worker
