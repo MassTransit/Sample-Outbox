@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.1" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="4.2.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Code\MassTransit\src\MassTransit.Abstractions\MassTransit.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\..\Code\MassTransit\src\MassTransit\MassTransit.csproj" />
+    <ProjectReference Include="..\..\..\..\Code\MassTransit\src\Persistence\MassTransit.EntityFrameworkCoreIntegration\MassTransit.EntityFrameworkCoreIntegration.csproj" />
+    <ProjectReference Include="..\..\..\..\Code\MassTransit\src\Transports\MassTransit.RabbitMqTransport\MassTransit.RabbitMqTransport.csproj" />
+  </ItemGroup>
+
+</Project>
