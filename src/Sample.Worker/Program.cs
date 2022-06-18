@@ -31,11 +31,15 @@ var host = Host.CreateDefaultBuilder(args)
             });
         });
 
-        services.AddEntityFrameworkOutbox<RegistrationDbContext>();
-        services.AddSingleton<ILockStatementProvider, PostgresLockStatementProvider>();
-
         services.AddMassTransit(x =>
         {
+            x.AddEntityFrameworkOutbox<RegistrationDbContext>(o =>
+            {
+                o.UsePostgres();
+                
+                o.DuplicateDetectionWindow = TimeSpan.FromSeconds(30);
+            });
+            
             x.SetKebabCaseEndpointNameFormatter();
 
             x.AddConsumer<NotifyRegistrationConsumer>();

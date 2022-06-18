@@ -43,16 +43,19 @@ builder.Services.AddHostedService<RecreateDatabaseHostedService<RegistrationDbCo
 
 builder.Services.AddMassTransit(x =>
 {
-    x.AddEntityFrameworkOnRamp<RegistrationDbContext>();
+    x.AddEntityFrameworkOutbox<RegistrationDbContext>(o =>
+    {
+        o.QueryDelay = TimeSpan.FromSeconds(1);
 
-    x.UsingRabbitMq((_, cfg) => { cfg.AutoStart = true; });
+        o.UsePostgres();
+        o.UseBusOutbox();
+    });
+
+    x.UsingRabbitMq((_, cfg) =>
+    {
+        cfg.AutoStart = true;
+    });
 });
-
-builder.Services.AddEntityFrameworkOnRampDeliveryService<RegistrationDbContext>(options => options.SweepInterval = TimeSpan.FromSeconds(1));
-builder.Services.AddSingleton<ILockStatementProvider, PostgresLockStatementProvider>();
-
-builder.Services.AddOptions<TextWriterLoggerOptions>().Configure(options => options.Disable("Microsoft"));
-
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
