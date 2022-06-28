@@ -2,24 +2,28 @@ namespace Sample.Components;
 
 using Contracts;
 using MassTransit;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
+using MassTransit.MongoDbIntegration;
+using MongoDB.Driver;
 
 
 public class RegistrationService :
     IRegistrationService
 {
-    readonly RegistrationDbContext _dbContext;
+    readonly MongoDbContext _dbContext;
+    readonly IMongoCollection<Registration> _registrations;
     readonly IPublishEndpoint _publishEndpoint;
 
-    public RegistrationService(RegistrationDbContext dbContext, IPublishEndpoint publishEndpoint)
+    public RegistrationService(MongoDbContext dbContext, IMongoCollection<Registration> registrations, IPublishEndpoint publishEndpoint)
     {
         _dbContext = dbContext;
+        _registrations = registrations;
         _publishEndpoint = publishEndpoint;
     }
 
     public async Task<Registration> SubmitRegistration(string eventId, string memberId, decimal payment)
     {
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+
         var registration = new Registration
         {
             RegistrationId = NewId.NextGuid(),
@@ -29,7 +33,9 @@ public class RegistrationService :
             Payment = payment
         };
 
-        await _dbContext.Set<Registration>().AddAsync(registration);
+        await _dbContext.BeginTransaction(cts.Token);
+
+        await _registrations.InsertOneAsync(_dbContext.Session, registration, null, cts.Token);
 
         await _publishEndpoint.Publish(new RegistrationSubmitted
         {
@@ -38,13 +44,13 @@ public class RegistrationService :
             MemberId = registration.MemberId,
             EventId = registration.EventId,
             Payment = payment
-        });
+        }, cts.Token);
 
         try
         {
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.CommitTransaction(cts.Token);
         }
-        catch (DbUpdateException exception) when (exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
+        catch (MongoCommandException exception) when (exception.CodeName == "DuplicateKey")
         {
             throw new DuplicateRegistrationException("Duplicate registration", exception);
         }
