@@ -1,14 +1,10 @@
 using System.Diagnostics;
-using System.Reflection;
 using MassTransit;
-using MassTransit.EntityFrameworkCoreIntegration;
-using MassTransit.Logging;
 using MassTransit.Metadata;
-using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 using OpenTelemetry;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Sample.Api;
 using Sample.Components;
 using Serilog;
 using Serilog.Events;
@@ -31,21 +27,12 @@ builder.Services.AddScoped<IRegistrationService, RegistrationService>();
 
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<RegistrationDbContext>(x =>
-{
-    var connectionString = builder.Configuration.GetConnectionString("Default");
+var connectionString = builder.Configuration.GetConnectionString("Default");
+const string databaseName = "outboxSample";
 
-    x.UseNpgsql(connectionString, options =>
-    {
-        options.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
-        options.MigrationsHistoryTable($"__{nameof(RegistrationDbContext)}");
-
-        options.EnableRetryOnFailure(5);
-        options.MinBatchSize(1);
-    });
-});
-
-builder.Services.AddHostedService<RecreateDatabaseHostedService<RegistrationDbContext>>();
+builder.Services.AddSingleton<IMongoClient>(_ => new MongoClient(connectionString));
+builder.Services.AddSingleton<IMongoDatabase>(provider => provider.GetRequiredService<IMongoClient>().GetDatabase(databaseName));
+builder.Services.AddMongoDbCollection<Registration>(x => x.RegistrationId);
 
 builder.Services.AddOpenTelemetry().WithTracing(x =>
 {
@@ -72,12 +59,13 @@ builder.Services.AddOpenTelemetry().WithTracing(x =>
 });
 builder.Services.AddMassTransit(x =>
 {
-    x.AddEntityFrameworkOutbox<RegistrationDbContext>(o =>
+    x.AddMongoDbOutbox(o =>
     {
-        o.QueryDelay = TimeSpan.FromSeconds(1);
+        o.DisableInboxCleanupService();
+        o.ClientFactory(provider => provider.GetRequiredService<IMongoClient>());
+        o.DatabaseFactory(provider => provider.GetRequiredService<IMongoDatabase>());
 
-        o.UsePostgres();
-        o.UseBusOutbox();
+        o.UseBusOutbox(bo => bo.DisableDeliveryService());
     });
 
     x.UsingRabbitMq((_, cfg) =>
