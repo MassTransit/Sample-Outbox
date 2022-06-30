@@ -1,8 +1,12 @@
+using System.Diagnostics;
 using System.Reflection;
 using MassTransit;
 using MassTransit.EntityFrameworkCoreIntegration;
 using MassTransit.Logging;
 using Microsoft.EntityFrameworkCore;
+using OpenTelemetry;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Sample.Api;
 using Sample.Components;
 using Serilog;
@@ -41,6 +45,29 @@ builder.Services.AddDbContext<RegistrationDbContext>(x =>
 
 builder.Services.AddHostedService<RecreateDatabaseHostedService<RegistrationDbContext>>();
 
+builder.Services.AddOpenTelemetryTracing(x =>
+{
+    x.SetResourceBuilder(ResourceBuilder.CreateDefault()
+            .AddService("api")
+            .AddTelemetrySdk()
+            .AddEnvironmentVariableDetector())
+        .AddSource("MassTransit")
+        .AddAspNetCoreInstrumentation()
+        .AddJaegerExporter(o =>
+        {
+            o.AgentHost = HostMetadataCache.IsRunningInContainer ? "jaeger" : "localhost";
+            o.AgentPort = 6831;
+            o.MaxPayloadSizeInBytes = 4096;
+            o.ExportProcessorType = ExportProcessorType.Batch;
+            o.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>
+            {
+                MaxQueueSize = 2048,
+                ScheduledDelayMilliseconds = 5000,
+                ExporterTimeoutMilliseconds = 30000,
+                MaxExportBatchSize = 512,
+            };
+        });
+});
 builder.Services.AddMassTransit(x =>
 {
     x.AddEntityFrameworkOutbox<RegistrationDbContext>(o =>
