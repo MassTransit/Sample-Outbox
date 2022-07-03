@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using MassTransit;
-using MassTransit.EntityFrameworkCoreIntegration;
+using MassTransit.Metadata;
 using Microsoft.EntityFrameworkCore;
 using OpenTelemetry;
 using OpenTelemetry.Resources;
@@ -63,10 +63,10 @@ var host = Host.CreateDefaultBuilder(args)
             x.AddEntityFrameworkOutbox<RegistrationDbContext>(o =>
             {
                 o.UsePostgres();
-                
+
                 o.DuplicateDetectionWindow = TimeSpan.FromSeconds(30);
             });
-            
+
             x.SetKebabCaseEndpointNameFormatter();
 
             x.AddConsumer<NotifyRegistrationConsumer>();

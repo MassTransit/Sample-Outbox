@@ -13,8 +13,6 @@ services:
       - 5432:5432
   jaeger:
     image: jaegertracing/all-in-one:latest
-    networks:
-      - mongors-network
     ports:
       - "5775:5775/udp"
       - "6831:6831/udp"
@@ -27,8 +25,6 @@ services:
       - "9411:9411"
   api:
     image: sample/api
-    networks:
-      - mongors-network
     environment: 
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80

@@ -3,6 +3,7 @@ using System.Reflection;
 using MassTransit;
 using MassTransit.EntityFrameworkCoreIntegration;
 using MassTransit.Logging;
+using MassTransit.Metadata;
 using Microsoft.EntityFrameworkCore;
 using OpenTelemetry;
 using OpenTelemetry.Resources;
@@ -39,6 +40,7 @@ builder.Services.AddDbContext<RegistrationDbContext>(x =>
         options.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
         options.MigrationsHistoryTable($"__{nameof(RegistrationDbContext)}");
 
+        options.EnableRetryOnFailure(5);
         options.MinBatchSize(1);
     });
 });
