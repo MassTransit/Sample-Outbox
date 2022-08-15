@@ -7,6 +7,7 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Sample.Components;
 using Sample.Components.Consumers;
+using Sample.Components.Services;
 using Sample.Components.StateMachines;
 using Serilog;
 using Serilog.Events;
@@ -58,6 +59,7 @@ var host = Host.CreateDefaultBuilder(args)
                 });
         });
 
+        services.AddScoped<IRegistrationValidationService, RegistrationValidationService>();
         services.AddMassTransit(x =>
         {
             x.AddEntityFrameworkOutbox<RegistrationDbContext>(o =>
@@ -72,6 +74,7 @@ var host = Host.CreateDefaultBuilder(args)
             x.AddConsumer<NotifyRegistrationConsumer>();
             x.AddConsumer<SendRegistrationEmailConsumer>();
             x.AddConsumer<AddEventAttendeeConsumer>();
+            x.AddConsumer<ValidateRegistrationConsumer, ValidateRegistrationConsumerDefinition>();
             x.AddSagaStateMachine<RegistrationStateMachine, RegistrationState, RegistrationStateDefinition>()
                 .EntityFrameworkRepository(r =>
                 {
