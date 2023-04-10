@@ -9,6 +9,7 @@ using OpenTelemetry;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Sample.Api;
+using Sample.Api.MediatorConsumers;
 using Sample.Components;
 using Serilog;
 using Serilog.Events;
@@ -70,6 +71,9 @@ builder.Services.AddOpenTelemetryTracing(x =>
             };
         });
 });
+
+builder.Services.AddMediator(configurator => configurator.AddConsumer<MediatorConsumer>());
+
 builder.Services.AddMassTransit(x =>
 {
     x.AddEntityFrameworkOutbox<RegistrationDbContext>(o =>
