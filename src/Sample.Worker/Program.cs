@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using MassTransit;
+using MassTransit.Logging;
 using MassTransit.Metadata;
 using Microsoft.EntityFrameworkCore;
 using OpenTelemetry;
@@ -30,19 +31,14 @@ var host = Host.CreateDefaultBuilder(args)
         {
             var connectionString = hostContext.Configuration.GetConnectionString("Default");
 
-            x.UseNpgsql(connectionString, options =>
-            {
-                options.MinBatchSize(1);
-            });
+            x.UseNpgsql(connectionString, options => { options.MinBatchSize(1); });
         });
 
-        services.AddOpenTelemetryTracing(builder =>
-        {
-            builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
-                    .AddService("service")
-                    .AddTelemetrySdk()
-                    .AddEnvironmentVariableDetector())
-                .AddSource("MassTransit")
+        services.AddOpenTelemetry()
+            .ConfigureResource(x => x.AddService("service")
+                .AddTelemetrySdk()
+                .AddEnvironmentVariableDetector())
+            .WithTracing(x => x.AddSource(DiagnosticHeaders.DefaultListenerName)
                 .AddJaegerExporter(o =>
                 {
                     o.AgentHost = HostMetadataCache.IsRunningInContainer ? "jaeger" : "localhost";
@@ -56,8 +52,7 @@ var host = Host.CreateDefaultBuilder(args)
                         ExporterTimeoutMilliseconds = 30000,
                         MaxExportBatchSize = 512,
                     };
-                });
-        });
+                }));
 
         services.AddScoped<IRegistrationValidationService, RegistrationValidationService>();
         services.AddMassTransit(x =>
@@ -82,10 +77,7 @@ var host = Host.CreateDefaultBuilder(args)
                     r.UsePostgres();
                 });
 
-            x.UsingRabbitMq((context, cfg) =>
-            {
-                cfg.ConfigureEndpoints(context);
-            });
+            x.UsingRabbitMq((context, cfg) => { cfg.ConfigureEndpoints(context); });
         });
     })
     .UseSerilog()

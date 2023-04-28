@@ -47,13 +47,11 @@ builder.Services.AddDbContext<RegistrationDbContext>(x =>
 
 builder.Services.AddHostedService<RecreateDatabaseHostedService<RegistrationDbContext>>();
 
-builder.Services.AddOpenTelemetryTracing(x =>
-{
-    x.SetResourceBuilder(ResourceBuilder.CreateDefault()
-            .AddService("api")
-            .AddTelemetrySdk()
-            .AddEnvironmentVariableDetector())
-        .AddSource("MassTransit")
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(x => x.AddService("api")
+        .AddTelemetrySdk()
+        .AddEnvironmentVariableDetector())
+    .WithTracing(x => x.AddSource(DiagnosticHeaders.DefaultListenerName)
         .AddAspNetCoreInstrumentation()
         .AddJaegerExporter(o =>
         {
@@ -68,8 +66,8 @@ builder.Services.AddOpenTelemetryTracing(x =>
                 ExporterTimeoutMilliseconds = 30000,
                 MaxExportBatchSize = 512,
             };
-        });
-});
+        }));
+
 builder.Services.AddMassTransit(x =>
 {
     x.AddEntityFrameworkOutbox<RegistrationDbContext>(o =>
@@ -80,10 +78,7 @@ builder.Services.AddMassTransit(x =>
         o.UseBusOutbox();
     });
 
-    x.UsingRabbitMq((_, cfg) =>
-    {
-        cfg.AutoStart = true;
-    });
+    x.UsingRabbitMq((_, cfg) => { cfg.AutoStart = true; });
 });
 
 builder.Services.AddEndpointsApiExplorer();
