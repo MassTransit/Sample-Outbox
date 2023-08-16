@@ -47,7 +47,7 @@ builder.Services.AddDbContext<RegistrationDbContext>(x =>
 
 builder.Services.AddHostedService<RecreateDatabaseHostedService<RegistrationDbContext>>();
 
-builder.Services.AddOpenTelemetryTracing(x =>
+builder.Services.AddOpenTelemetry().WithTracing(x =>
 {
     x.SetResourceBuilder(ResourceBuilder.CreateDefault()
             .AddService("api")

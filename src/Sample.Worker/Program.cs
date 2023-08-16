@@ -36,9 +36,9 @@ var host = Host.CreateDefaultBuilder(args)
             });
         });
 
-        services.AddOpenTelemetryTracing(builder =>
+        services.AddOpenTelemetry().WithTracing(x =>
         {
-            builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
+            x.SetResourceBuilder(ResourceBuilder.CreateDefault()
                     .AddService("service")
                     .AddTelemetrySdk()
                     .AddEnvironmentVariableDetector())
