@@ -1,5 +1,3 @@
-using System.Runtime.Serialization;
-
 namespace Sample.Components;
 
 [Serializable]
@@ -7,10 +5,6 @@ public class DuplicateRegistrationException :
     Exception
 {
     public DuplicateRegistrationException()
-    {
-    }
-
-    protected DuplicateRegistrationException(SerializationInfo info, StreamingContext context) : base(info, context)
     {
     }
 
